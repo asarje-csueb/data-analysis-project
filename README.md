@@ -106,7 +106,12 @@ The app opens at http://localhost:8501.
 
 ```
 data-analysis-project/
-├── app.py              # Streamlit app
+├── app.py              # Entry point: page setup and main() that runs each section in order
+├── config.py           # Column lists and business-friendly labels
+├── data_loader.py      # Loads and caches the CSV, adds readable columns
+├── filters.py          # Sidebar filters
+├── charts.py           # Reusable chart, map, and formatting helpers
+├── sections.py         # One function per page section (KPIs, charts 1-4, city profile, summary)
 ├── convert_data.py     # One-time Excel to CSV conversion
 ├── data/
 │   └── SBA_RRF.csv     # RRF grant data
