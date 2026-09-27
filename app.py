@@ -46,9 +46,16 @@ GROUP_COLS = {
     "Urban vs Rural": "Urban/Rural",
     "Franchise vs Independent": "Franchise",
     "Top 15 Cities": "BusinessCity",
+    "Top 15 ZIP Codes": "ZIP",
+}
+MAP_COLORS = {
+    "Women-owned": "WomenOwnedIndicator",
+    "Low-income (LMI) community": "LMIIndicator",
+    "HUBZone": "HubzoneIndicator",
+    "Franchise": "Is_Franchise",
 }
 TABLE_COLS = [
-    "BusinessName", "BusinessCity", "GrantAmount", "RestaurantType",
+    "BusinessName", "BusinessCity", "ZIP", "GrantAmount", "RestaurantType",
     "LegalOrganizationType", "Franchise", "Urban/Rural", "HubzoneIndicator",
     "LMIIndicator", "WomenOwnedIndicator", "VeteranIndicator", "SocioeconmicIndicator",
 ]
@@ -125,12 +132,22 @@ def hbar(series, title, xlabel, ylabel, color, kind="dollars"):
     st.pyplot(fig)
 
 
+def grant_map(frame, color_by="None", scale=0.4):
+    """One dot per grant, sized by grant amount and optionally colored by a yes/no column."""
+    points = frame[["Latitude", "Longitude", "GrantAmount"]].copy()
+    points["size"] = np.sqrt(points["GrantAmount"]) * scale
+    points["color"] = "#1f77b4"
+    if color_by != "None":
+        points["color"] = np.where(frame[MAP_COLORS[color_by]] == 1, "#ff7f0e", "#1f77b4")
+    st.map(points, latitude="Latitude", longitude="Longitude", size="size", color="color")
+
+
 st.title("SBA Restaurant Revitalization Fund - Grant Explorer")
 st.write(
     "The Restaurant Revitalization Fund (RRF) gave grants to restaurants and bars hurt by "
-    "COVID-19. This app explores **6,077 California grants** to answer three questions: "
+    "COVID-19. This app explores **6,077 California grants** to answer four questions: "
     "How large were the grants? Which kinds of businesses received the most money? "
-    "And did the funding reach underserved owners and communities? "
+    "Where did the money go? And did the funding reach underserved owners and communities? "
     "Use the **Filters** in the left sidebar to focus on any segment. Every number and "
     "chart on this page updates to match."
 )
@@ -141,6 +158,7 @@ def load_data():
     df = pd.read_csv("data/SBA_RRF.csv")
     df["Urban/Rural"] = df["RuralUrbanIndicator"].map({"U": "Urban", "R": "Rural"})
     df["Franchise"] = df["Is_Franchise"].map({1: "Franchise", 0: "Independent"})
+    df["ZIP"] = df["BusinessZip"].astype(str)
     return df
 
 
@@ -152,6 +170,10 @@ st.sidebar.caption("Leave a filter empty (or on 'All') to include everything.")
 
 filtered = sidebar_isin(
     filtered, "City", sorted(df["BusinessCity"].dropna().unique()), "BusinessCity"
+)
+filtered = sidebar_isin(
+    filtered, "ZIP Code", sorted(filtered["ZIP"].unique()), "ZIP",
+    help="Only ZIP codes in the selected cities are listed.",
 )
 
 min_grant = int(np.floor(df["GrantAmount"].min()))
@@ -249,6 +271,7 @@ group_by = group_col.selectbox("Group by", [
     "Ownership Type",
     "Franchise vs Independent",
     "Top 15 Cities",
+    "Top 15 ZIP Codes",
 ])
 metric = metric_col.radio(
     "Metric", ["Total Grant $", "Average Grant $", "Number of Grants"], horizontal=True
@@ -263,8 +286,9 @@ else:
     segment = grouped.size() if metric == "Number of Grants" else (
         grouped.sum() if metric == "Total Grant $" else grouped.mean()
     )
-    if group_by == "Top 15 Cities":
-        segment = segment[segment.index.isin(filtered["BusinessCity"].value_counts().head(15).index)]
+    if group_by.startswith("Top 15"):
+        top = filtered[GROUP_COLS[group_by]].value_counts().head(15).index
+        segment = segment[segment.index.isin(top)]
 
 segment = segment[segment > 0].sort_values(ascending=False)
 hbar(
@@ -289,6 +313,62 @@ if st.checkbox("Sort purposes from most to least common", value=True):
     purpose_share = purpose_share.sort_values(ascending=False)
 hbar(purpose_share, "Grant Purpose (% of Grants)", "Percent of Grants", "Grant Purpose", "slateblue", kind="percent")
 st.caption("Recipients could select more than one purpose, so percentages do not add up to 100%.")
+
+st.divider()
+st.subheader("4. Where did the grants go?")
+st.write("Each dot is one grant. Larger dots are larger grants.")
+
+color_by = st.selectbox("Highlight in orange", ["None", *MAP_COLORS])
+grant_map(filtered, color_by)
+if color_by != "None":
+    share = filtered[MAP_COLORS[color_by]].mean() * 100
+    st.caption(f"Orange dots are {color_by} grants ({share:.1f}% of the selected grants). Blue dots are all others.")
+else:
+    st.caption("Use the City and ZIP Code filters in the sidebar to zoom in on an area.")
+
+st.divider()
+st.subheader("5. City profile")
+st.write("Pick a city to see its headline numbers and how funding was spread across its ZIP codes.")
+
+city_counts = filtered["BusinessCity"].value_counts()
+city = st.selectbox(
+    "City", city_counts.index, format_func=lambda c: f"{c} ({city_counts[c]:,} grants)"
+)
+city_df = filtered[filtered["BusinessCity"] == city]
+
+for column, (label, value) in zip(st.columns(4), [
+    ("Grants", f"{len(city_df):,}"),
+    ("Total $", dollars(city_df["GrantAmount"].sum())),
+    ("Median Grant", dollars(city_df["GrantAmount"].median())),
+    ("Share of $", f"{city_df['GrantAmount'].sum() / filtered['GrantAmount'].sum() * 100:.1f}%"),
+]):
+    column.metric(label, value)
+
+map_col, table_col = st.columns(2)
+with map_col:
+    grant_map(city_df, color_by, scale=0.1)
+with table_col:
+    zip_summary = city_df.groupby("ZIP").agg(
+        Grants=("GrantAmount", "size"),
+        Total=("GrantAmount", "sum"),
+        Median=("GrantAmount", "median"),
+        WomenOwned=("WomenOwnedIndicator", "mean"),
+        LowIncome=("LMIIndicator", "mean"),
+    ).sort_values("Total", ascending=False)
+    zip_summary[["Total", "Median"]] = zip_summary[["Total", "Median"]].map(dollars)
+    st.dataframe(
+        zip_summary,
+        column_config={
+            "Total": "Total $",
+            "Median": "Median $",
+            "WomenOwned": st.column_config.ProgressColumn("Women-owned", format="percent", min_value=0, max_value=1),
+            "LowIncome": st.column_config.ProgressColumn("Low-income area", format="percent", min_value=0, max_value=1),
+        },
+    )
+st.caption(
+    "Share of $ is this city's portion of all selected grant dollars. "
+    "The table lists every ZIP code in the city, sorted by total grant dollars."
+)
 
 st.divider()
 st.subheader("Summary Statistics")

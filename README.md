@@ -8,11 +8,12 @@ The RRF gave grants to restaurants, bars, and other food and beverage businesses
 
 **How were RRF grant dollars spread across California restaurants, and did they reach underserved businesses** (women-owned, veteran-owned, socioeconomically disadvantaged, businesses in low-income communities, HUBZones, and rural areas)?
 
-The app answers three business questions:
+The app answers four business questions:
 
 1. **How large were the grants?** Distribution of grant amounts for any segment.
-2. **Which businesses received the most funding?** Total, average, or count of grants by restaurant type, entity type, ownership, urban vs rural, franchise status, or city.
+2. **Which businesses received the most funding?** Total, average, or count of grants by restaurant type, entity type, ownership, urban vs rural, franchise status, city, or ZIP code.
 3. **How did recipients plan to use the money?** Share of grants listing each of 10 spending purposes (payroll, rent, utilities, and so on).
+4. **Where did the money go?** A map of every grant, plus a city profile that breaks funding down by ZIP code.
 
 ## Dataset
 
@@ -28,7 +29,8 @@ Key columns:
 
 | Column(s) | Meaning |
 | --- | --- |
-| `BusinessCity` | City of the business |
+| `BusinessCity`, `BusinessZip` | City and ZIP code of the business |
+| `Latitude`, `Longitude` | Business location, used for the map |
 | `GrantAmount` | Grant amount in dollars |
 | `Bakery` ... `Winery` | 13 yes/no (1/0) restaurant type flags; a business can have several |
 | `RuralUrbanIndicator` | `U` = Urban, `R` = Rural |
@@ -43,6 +45,7 @@ Key columns:
 **Sidebar filters** (every chart and number updates to match):
 
 - City
+- ZIP Code (lists only ZIP codes in the selected cities)
 - Grant Amount range
 - Restaurant Type
 - Urban vs Rural
@@ -58,6 +61,8 @@ Key columns:
 - Chart 1: Histogram of grant amounts, with a bins slider and log-scale checkbox
 - Chart 2: Bar chart of grant funding by segment, with group-by and metric controls
 - Chart 3: Bar chart of grant purposes
+- Chart 4: Map of grants, sized by grant amount, with an option to highlight women-owned, low-income, HUBZone, or franchise grants
+- City profile: pick a city to see its headline numbers, a map, and a ZIP code breakdown
 - Summary statistics and a table of the filtered grants
 
 ## How to Run
