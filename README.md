@@ -61,7 +61,7 @@ Key columns:
 - Chart 1: Histogram of grant amounts, with a bins slider and log-scale checkbox
 - Chart 2: Bar chart of grant funding by segment, with group-by and metric controls
 - Chart 3: Bar chart of grant purposes
-- Chart 4: Map of grants, sized by grant amount, with an option to highlight women-owned, low-income, HUBZone, or franchise grants
+- Chart 4: Map of grants, sized by grant amount, with an option to highlight women-owned, low-income, HUBZone, or franchise grants. Hover over a dot for a quick summary, or click it to see the grant's full details below the map.
 - City profile: pick a city to see its headline numbers, a map, and a ZIP code breakdown
 - Summary statistics and a table of the filtered grants
 

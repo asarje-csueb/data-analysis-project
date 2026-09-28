@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 
 from charts import dollars, flag_metric, grant_map, hbar, histogram, metric_row
@@ -78,16 +79,57 @@ def render_purposes(filtered):
     st.caption("Recipients could select more than one purpose, so percentages do not add up to 100%.")
 
 
+def render_grant_details(frame, loan_number):
+    """Details card for the grant clicked on a map."""
+    match = frame[frame["LoanNumber"] == loan_number]
+    if match.empty:
+        return
+    grant = match.iloc[0]
+    entity = grant["LegalOrganizationType"]
+    if grant["Is_Franchise"] == 1:
+        entity += f" · {grant['FranchiseName']} franchise"
+    purposes = [label for col, label in PURPOSE_COLS.items() if grant[col] == 1]
+
+    with st.container(border=True):
+        st.markdown(f"#### {grant['BusinessName']}")
+        approved = pd.to_datetime(grant["ApprovalDate"]).strftime("%B %-d, %Y")
+        st.caption(
+            f"{grant['BusinessAddress']}, {grant['BusinessCity']}, CA {grant['ZIP']} · Approved {approved}"
+        )
+        metric_row([
+            ("Grant Amount", dollars(grant["GrantAmount"])),
+            ("Area", grant["Urban/Rural"]),
+        ])
+        st.markdown(f"**Business type:** {grant['BusinessType']}")
+        st.markdown(f"**Entity:** {entity}")
+        st.markdown(f"**Ownership and community:** {grant['Tags']}")
+        st.markdown(f"**Planned uses of the grant:** {', '.join(purposes)}")
+
+
+def show_selection(frame, loan_number, hint):
+    if loan_number is None:
+        st.caption(hint)
+    else:
+        render_grant_details(frame, loan_number)
+
+
 def render_map(filtered):
     """Draw the grant map and return the highlight choice so the city profile can reuse it."""
-    section_header("4. Where did the grants go?", "Each dot is one grant. Larger dots are larger grants.")
+    section_header(
+        "4. Where did the grants go?",
+        "Each dot is one grant. Larger dots are larger grants. Hover over a dot for a quick "
+        "summary, click it for full details, and zoom in to separate nearby dots.",
+    )
     color_by = st.selectbox("Highlight in orange", ["None", *MAP_COLORS])
-    grant_map(filtered, color_by)
+    selected = grant_map(filtered, color_by, key="state_map")
     if color_by != "None":
         share = filtered[MAP_COLORS[color_by]].mean() * 100
         st.caption(f"Orange dots are {color_by} grants ({share:.1f}% of the selected grants). Blue dots are all others.")
-    else:
-        st.caption("Use the City and ZIP Code filters in the sidebar to zoom in on an area.")
+    show_selection(
+        filtered, selected,
+        "Click any dot to see that grant's details here. "
+        "Use the City and ZIP Code filters in the sidebar to zoom in on an area.",
+    )
     return color_by
 
 
@@ -130,13 +172,14 @@ def render_city_profile(filtered, color_by):
     ])
     map_col, table_col = st.columns(2)
     with map_col:
-        grant_map(city_df, color_by, scale=0.1)
+        selected = grant_map(city_df, color_by, key="city_map")
     with table_col:
         zip_table(city_df)
     st.caption(
         "Share of $ is this city's portion of all selected grant dollars. "
         "The table lists every ZIP code in the city, sorted by total grant dollars."
     )
+    show_selection(city_df, selected, "Click a dot on the city map to see that grant's details here.")
 
 
 def render_summary(filtered):

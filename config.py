@@ -61,6 +61,15 @@ GROUP_BY_OPTIONS = [
 ]
 METRICS = ["Total Grant $", "Average Grant $", "Number of Grants"]
 
+# Yes/no columns shown as tags in the map tooltip and grant details card.
+TAG_COLS = {
+    "Women-owned": "WomenOwnedIndicator",
+    "Veteran-owned": "VeteranIndicator",
+    "Socioeconomically disadvantaged": "SocioeconmicIndicator",
+    "Low-income community": "LMIIndicator",
+    "HUBZone": "HubzoneIndicator",
+}
+
 MAP_COLORS = {
     "Women-owned": "WomenOwnedIndicator",
     "Low-income (LMI) community": "LMIIndicator",
