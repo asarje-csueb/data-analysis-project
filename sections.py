@@ -3,7 +3,8 @@ import streamlit as st
 
 from charts import dollars, flag_metric, grant_map, hbar, histogram, metric_row
 from config import (
-    FLAG_GROUPS, GROUP_BY_OPTIONS, GROUP_COLS, MAP_COLORS, METRICS, PURPOSE_COLS, TABLE_COLS,
+    FLAG_GROUPS, GROUP_BY_OPTIONS, GROUP_COLS, MAP_COLORS, METRICS, PURPOSE_COLS, SUMMARY_LABELS,
+    TABLE_COLS,
 )
 
 
@@ -70,7 +71,7 @@ def render_segments(filtered):
 
 
 def render_purposes(filtered):
-    section_header("3. How did recipients plan to use the money?", "Share of selected grants that listed each spending purpose.")
+    section_header("3. What uses of RRF funds were reported?", "Share of selected grants that reported each intended use of funds.")
     purpose_share = filtered[list(PURPOSE_COLS)].mean() * 100
     purpose_share.index = [PURPOSE_COLS[c] for c in purpose_share.index]
     if st.checkbox("Sort purposes from most to least common", value=True):
@@ -103,7 +104,7 @@ def render_grant_details(frame, loan_number):
         st.markdown(f"**Business type:** {grant['BusinessType']}")
         st.markdown(f"**Entity:** {entity}")
         st.markdown(f"**Ownership and community:** {grant['Tags']}")
-        st.markdown(f"**Planned uses of the grant:** {', '.join(purposes)}")
+        st.markdown(f"**Reported uses of the grant:** {', '.join(purposes)}")
 
 
 def show_selection(frame, loan_number, hint):
@@ -184,7 +185,12 @@ def render_city_profile(filtered, color_by):
 
 def render_summary(filtered):
     section_header("Summary Statistics", "Grant amount statistics for the selected businesses.")
-    st.write(filtered["GrantAmount"].describe())
+    stats = filtered["GrantAmount"].describe()
+    values = [f"{v:,.0f}" if k == "count" else f"${v:,.0f}" for k, v in stats.items()]
+    st.dataframe(
+        pd.DataFrame({"Statistic": stats.index.map(SUMMARY_LABELS), "Grant Amount": values}),
+        hide_index=True,
+    )
     with st.expander("View filtered data"):
         st.dataframe(
             filtered[TABLE_COLS].sort_values("GrantAmount", ascending=False),

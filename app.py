@@ -11,8 +11,9 @@ INTRO = (
     "The Restaurant Revitalization Fund (RRF) gave grants to restaurants and bars hurt by "
     "COVID-19. This app explores **6,077 California grants** to answer four questions: "
     "How large were the grants? Which kinds of businesses received the most money? "
-    "Where did the money go? And did the funding reach underserved owners and communities? "
-    "Use the **Filters** in the left sidebar to focus on any segment. Every number and "
+    "Where did the money go? And how was funding distributed across priority groups and "
+    "communities? The data covers approved grants only, so it shows how funding was "
+    "distributed, not approval rates. Use the **Filters** in the left sidebar to focus on any segment. Every number and "
     "chart on this page updates to match."
 )
 

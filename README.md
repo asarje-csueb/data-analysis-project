@@ -6,13 +6,15 @@ An interactive Streamlit app for exploring how the SBA Restaurant Revitalization
 
 The RRF gave grants to restaurants, bars, and other food and beverage businesses hurt by COVID-19. Policy makers, lenders, and restaurant associations want to know:
 
-**How were RRF grant dollars spread across California restaurants, and did they reach underserved businesses** (women-owned, veteran-owned, socioeconomically disadvantaged, businesses in low-income communities, HUBZones, and rural areas)?
+**How was RRF funding distributed across California restaurants, priority groups, and communities** (women-owned, veteran-owned, socioeconomically disadvantaged, businesses in low-income communities, HUBZones, and rural areas)?
+
+The data covers approved grants only, so the app shows how funding was distributed, not approval rates or reach relative to eligible businesses.
 
 The app answers four business questions:
 
 1. **How large were the grants?** Distribution of grant amounts for any segment.
 2. **Which businesses received the most funding?** Total, average, or count of grants by restaurant type, entity type, ownership, urban vs rural, franchise status, city, or ZIP code.
-3. **How did recipients plan to use the money?** Share of grants listing each of 10 spending purposes (payroll, rent, utilities, and so on).
+3. **What uses of RRF funds were reported?** Share of grants reporting each of 10 intended uses (payroll, rent, utilities, and so on).
 4. **Where did the money go?** A map of every grant, plus a city profile that breaks funding down by ZIP code.
 
 ## Dataset
@@ -61,7 +63,7 @@ Key columns:
 - Chart 1: Histogram of grant amounts, with a bins slider and log-scale checkbox
 - Chart 2: Bar chart of grant funding by segment, with group-by and metric controls
 - Chart 3: Bar chart of grant purposes
-- Chart 4: Map of grants, sized by grant amount, with an option to highlight women-owned, low-income, HUBZone, or franchise grants. Hover over a dot for a quick summary, or click it to see the grant's full details below the map.
+- Chart 4: Map of grants, sized by grant amount, with an option to highlight any of the five priority groups (women-owned, veteran-owned, socioeconomically disadvantaged, low-income community, HUBZone) or franchise grants. Hover over a dot for a quick summary, or click it to see the grant's full details below the map.
 - City profile: pick a city to see its headline numbers, a map, and a ZIP code breakdown
 - Summary statistics and a table of the filtered grants
 

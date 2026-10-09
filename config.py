@@ -72,9 +72,16 @@ TAG_COLS = {
 
 MAP_COLORS = {
     "Women-owned": "WomenOwnedIndicator",
+    "Veteran-owned": "VeteranIndicator",
+    "Socioeconomically disadvantaged": "SocioeconmicIndicator",
     "Low-income (LMI) community": "LMIIndicator",
     "HUBZone": "HubzoneIndicator",
     "Franchise": "Is_Franchise",
+}
+SUMMARY_LABELS = {
+    "count": "Number of Grants", "mean": "Average", "std": "Standard Deviation",
+    "min": "Smallest", "25%": "25th Percentile", "50%": "Median",
+    "75%": "75th Percentile", "max": "Largest",
 }
 TABLE_COLS = [
     "BusinessName", "BusinessCity", "ZIP", "GrantAmount", "RestaurantType",
