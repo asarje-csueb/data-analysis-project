@@ -61,11 +61,27 @@ GROUP_BY_OPTIONS = [
 ]
 METRICS = ["Total Grant $", "Average Grant $", "Number of Grants"]
 
+# Yes/no columns shown as tags in the map tooltip and grant details card.
+TAG_COLS = {
+    "Women-owned": "WomenOwnedIndicator",
+    "Veteran-owned": "VeteranIndicator",
+    "Socioeconomically disadvantaged": "SocioeconmicIndicator",
+    "Low-income community": "LMIIndicator",
+    "HUBZone": "HubzoneIndicator",
+}
+
 MAP_COLORS = {
     "Women-owned": "WomenOwnedIndicator",
+    "Veteran-owned": "VeteranIndicator",
+    "Socioeconomically disadvantaged": "SocioeconmicIndicator",
     "Low-income (LMI) community": "LMIIndicator",
     "HUBZone": "HubzoneIndicator",
     "Franchise": "Is_Franchise",
+}
+SUMMARY_LABELS = {
+    "count": "Number of Grants", "mean": "Average", "std": "Standard Deviation",
+    "min": "Smallest", "25%": "25th Percentile", "50%": "Median",
+    "75%": "75th Percentile", "max": "Largest",
 }
 TABLE_COLS = [
     "BusinessName", "BusinessCity", "ZIP", "GrantAmount", "RestaurantType",
